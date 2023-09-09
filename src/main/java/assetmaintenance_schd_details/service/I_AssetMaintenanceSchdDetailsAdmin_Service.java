@@ -1,13 +1,12 @@
 package assetmaintenance_schd_details.service;
 
 import java.util.ArrayList;
-import assetmaintenance_master.model.master.AssetMaintenanceMaster;
 import assetmaintenance_schd_details.model.dto.AssetMaintenanceSchdDetail_DTO;
 
 public interface I_AssetMaintenanceSchdDetailsAdmin_Service
 {
-    public AssetMaintenanceSchdDetail_DTO newAssetMaintenanceDetails(AssetMaintenanceSchdDetail_DTO asssetMaintMasterDTO);
-    public ArrayList<AssetMaintenanceSchdDetail_DTO> getAllAssetMaintenanceDetails();
+    public AssetMaintenanceSchdDetail_DTO newAssetMaintenanceSchdDetail(AssetMaintenanceSchdDetail_DTO asssetMaintMasterDTO);
+    public ArrayList<AssetMaintenanceSchdDetail_DTO> getAllAssetMaintenanceSchdDetails();
     public ArrayList<AssetMaintenanceSchdDetail_DTO> getSelectAssetMaintDetails(ArrayList<Long> aList);
     public ArrayList<AssetMaintenanceSchdDetail_DTO> getSelectSchedulesByMaintenance( ArrayList<Long> ids);
 	public ArrayList<AssetMaintenanceSchdDetail_DTO> getSelectSchedulesByScheduleIds( ArrayList<String> ids);
@@ -18,9 +17,9 @@ public interface I_AssetMaintenanceSchdDetailsAdmin_Service
 	public ArrayList<AssetMaintenanceSchdDetail_DTO> getAssetsNotDone();
 	public ArrayList<AssetMaintenanceSchdDetail_DTO> getAssetsWIP();
 	public ArrayList<AssetMaintenanceSchdDetail_DTO> getAssetsNotWIP();
-	public ArrayList<AssetMaintenanceMaster> getAssetsBetweenDTTM(String  fr,  String to);    
-    public void updAssetMaintenanceDetails(AssetMaintenanceSchdDetail_DTO assetMaintenanceSchdDetail_DTO);
-    public void delAllAssetMaintenanceDetails();
+	public ArrayList<AssetMaintenanceSchdDetail_DTO> getAssetsBetweenDTTM(String  fr,  String to);    
+    public void updAssetMaintenanceSchdDetail(AssetMaintenanceSchdDetail_DTO assetMaintenanceSchdDetail_DTO);
+    public void delAllAssetMaintenanceSchdDetails();
     public void delSelectAssetMaintenanceDetails(ArrayList<Long> aList);    
     public void delSelectSchedulesByMaintenance( ArrayList<Long> ids);
     public void delSelectSchedulesByScheduleIds( ArrayList<String> ids);

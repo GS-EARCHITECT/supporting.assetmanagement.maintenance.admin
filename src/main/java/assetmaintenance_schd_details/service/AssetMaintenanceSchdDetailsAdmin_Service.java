@@ -4,13 +4,11 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
@@ -38,7 +36,7 @@ public class AssetMaintenanceSchdDetailsAdmin_Service implements I_AssetMaintena
 		return lMaster;
 	}
 
-	public ArrayList<AssetMaintenanceSchdDetail_DTO> getAllAssetMaintenanceSchdDetail() 
+	public ArrayList<AssetMaintenanceSchdDetail_DTO> getAllAssetMaintenanceSchdDetails() 
 	{
 		ArrayList<AssetMaintenanceSchdDetail> assetMaintList =  (ArrayList<AssetMaintenanceSchdDetail>) assetMainSchdDetailsAdminRepo.findAll();
 		ArrayList<AssetMaintenanceSchdDetail_DTO> lMasterss = assetMaintList != null ? this.getAssetMaintenanceSchdDetailDtos(assetMaintList) : null;
@@ -62,6 +60,13 @@ public class AssetMaintenanceSchdDetailsAdmin_Service implements I_AssetMaintena
 	public ArrayList<AssetMaintenanceSchdDetail_DTO> getSelectSchedulesByScheduleIds( ArrayList<String> ids) 
 	{
 		ArrayList<AssetMaintenanceSchdDetail> assetMaintenanceSchdDetails =  assetMainSchdDetailsAdminRepo.getSelectSchedulesByScheduleIds(ids);
+		ArrayList<AssetMaintenanceSchdDetail_DTO> lMasterss = assetMaintenanceSchdDetails != null ? this.getAssetMaintenanceSchdDetailDtos(assetMaintenanceSchdDetails) : null;
+		return lMasterss;
+	}
+	
+	public ArrayList<AssetMaintenanceSchdDetail_DTO> getSelectSchedulesByResSrvProds( ArrayList<Long> ids) 
+	{
+		ArrayList<AssetMaintenanceSchdDetail> assetMaintenanceSchdDetails =  assetMainSchdDetailsAdminRepo.getSelectSchedulesByResSrvProds(ids);
 		ArrayList<AssetMaintenanceSchdDetail_DTO> lMasterss = assetMaintenanceSchdDetails != null ? this.getAssetMaintenanceSchdDetailDtos(assetMaintenanceSchdDetails) : null;
 		return lMasterss;
 	}
@@ -108,7 +113,7 @@ public class AssetMaintenanceSchdDetailsAdmin_Service implements I_AssetMaintena
 		return lMasterss;
 	}
 	
-	public ArrayList<AssetMaintenanceMaster_DTO> getAssetsBetweenPlanDTTM( String fr,  String to) 
+	public ArrayList<AssetMaintenanceSchdDetail_DTO> getAssetsBetweenDTTM( String fr,  String to) 
 	{
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
 		LocalDateTime dateOn = LocalDateTime.parse(fr, formatter);
@@ -116,90 +121,99 @@ public class AssetMaintenanceSchdDetailsAdmin_Service implements I_AssetMaintena
 		Timestamp ts_Fr = Timestamp.valueOf(dateOn);
 		Timestamp ts_To = Timestamp.valueOf(dateTo);
 		ArrayList<AssetMaintenanceSchdDetail> assetMaintenanceSchdDetails = assetMainSchdDetailsAdminRepo.getAssetsBetweenDTTM(ts_Fr, ts_To);
-		ArrayList<AssetMaintenanceMaster_DTO> lMasterss = assetMaintenanceSchdDetails != null ? this.getAssetMaintenanceSchdDetailDtos(assetMaintenanceSchdDetails) : null;
+		ArrayList<AssetMaintenanceSchdDetail_DTO> lMasterss = assetMaintenanceSchdDetails != null ? this.getAssetMaintenanceSchdDetailDtos(assetMaintenanceSchdDetails) : null;
 		return lMasterss;
 	}
 
 	
-	public void updAssetMaintenanceSchdDetail(AssetMaintenanceSchdDetail_DTO lMaster) 
+	public void updAssetMaintenanceSchdDetail(AssetMaintenanceSchdDetail_DTO assetMaintenanceSchdDetail_DTO) 
 	{
-		if(lMaster!=null)
+		if(assetMaintenanceSchdDetail_DTO!=null)
+		{		
+		if (assetMainSchdDetailsAdminRepo.existsById(assetMaintenanceSchdDetail_DTO.getScheduleSeqNo()))
 		{
-		AssetMaintenanceSchdDetailPK assetMaintenanceDetailsPK = null;
-		AssetMaintenanceSchdDetail assetMaintMaster =null; 
-		assetMaintenanceDetailsPK = new AssetMaintenanceSchdDetailPK();
-		assetMaintenanceDetailsPK.setAssetMaintenanceSeqNo(lMaster.getAssetMaintenanceSeqNo());
-		assetMaintenanceDetailsPK.setServiceSeqNo(lMaster.getServiceSeqNo());
-		assetMaintenanceDetailsPK.setAssetSeqNo(lMaster.getAssetSeqNo());	
-		
-		if (assetMainSchdDetailsAdminRepo.existsById(assetMaintenanceDetailsPK))
-		{
-			assetMaintMaster = setAssetMaintenanceSchdDetail(lMaster); 
-			assetMaintMaster.setId(assetMaintenanceDetailsPK);
-			assetMainSchdDetailsAdminRepo.save(assetMaintMaster);
+			AssetMaintenanceSchdDetail assetMaintenanceSchdDetail = this.setAssetMaintenanceSchdDetail(assetMaintenanceSchdDetail_DTO); 
+			assetMaintenanceSchdDetail.setScheduleSeqNo(assetMaintenanceSchdDetail_DTO.getScheduleSeqNo());
+			assetMainSchdDetailsAdminRepo.save(assetMaintenanceSchdDetail);
 		}
 		}
+		return;
 	}
 
-	public void delAssetMaintenanceSchdDetail(AssetMaintenanceSchdDetail_DTO lMaster) 
+	public void delAllAssetMaintenanceSchdDetails() 
 	{
-		if(lMaster!=null)
-		{
-		AssetMaintenanceSchdDetailPK assetMaintenanceDetailsPK = null;		
-		assetMaintenanceDetailsPK = new AssetMaintenanceSchdDetailPK();
-		assetMaintenanceDetailsPK.setAssetMaintenanceSeqNo(lMaster.getAssetMaintenanceSeqNo());
-		assetMaintenanceDetailsPK.setServiceSeqNo(lMaster.getServiceSeqNo());
-		assetMaintenanceDetailsPK.setAssetSeqNo(lMaster.getAssetSeqNo());	
-		
-		if (assetMainSchdDetailsAdminRepo.existsById(assetMaintenanceDetailsPK))
-		{	
-			assetMainSchdDetailsAdminRepo.deleteById(assetMaintenanceDetailsPK);
-		}
-		}
-
-	}
-	
-	public void delAllAssetMaintenanceSchdDetail() {
 		assetMainSchdDetailsAdminRepo.deleteAll();
 	}
 
-	public void delSelectAssetMaintenanceSchdDetail(ArrayList<AssetMaintenanceSchdDetail_DTO> assetMaintList) 
+	public void delSelectAssetMaintenanceDetails(ArrayList<Long> aList) 
 	{
-		AssetMaintenanceSchdDetailPK assetMaintenanceDetailsPK = null;
-		Optional<AssetMaintenanceSchdDetail> assetMaintMaster = null;
-		
-		if(assetMaintList!=null)
-		{			
-		for (int i = 0; i < assetMaintList.size(); i++) 
-		{
-			assetMaintenanceDetailsPK = new AssetMaintenanceSchdDetailPK();
-			assetMaintenanceDetailsPK.setAssetMaintenanceSeqNo(assetMaintList.get(i).getAssetMaintenanceSeqNo());
-			assetMaintenanceDetailsPK.setServiceSeqNo(assetMaintList.get(i).getServiceSeqNo());
-			assetMaintenanceDetailsPK.setAssetSeqNo(assetMaintList.get(i).getAssetSeqNo());
-			assetMaintMaster = assetMainSchdDetailsAdminRepo.findById(assetMaintenanceDetailsPK);
-			if (assetMaintMaster.isPresent() && assetMaintMaster != null) {				
-				assetMainSchdDetailsAdminRepo.deleteById(assetMaintenanceDetailsPK);
-			}
-		}
-		}
-
+	assetMainSchdDetailsAdminRepo.deleteAllById(aList);	
 	}
 
+	public void delSelectSchedulesByMaintenance( ArrayList<Long> ids) 
+	{
+	assetMainSchdDetailsAdminRepo.delSelectSchedulesByMaintenance(ids);	
+	}
+	
+	public void delSelectSchedulesByScheduleIds( ArrayList<String> ids) 
+	{
+	assetMainSchdDetailsAdminRepo.delSelectSchedulesByScheduleIds(ids);	
+	}
+	
+	public void delSelectSchedulesByResSrvProds( ArrayList<Long> ids) 
+	{
+	assetMainSchdDetailsAdminRepo.delSelectSchedulesByResSrvProds(ids);	
+	}
+	
+	public void delAssetsOK()
+	{
+	assetMainSchdDetailsAdminRepo.delAssetsOK();
+	}
+	
+    public void delAssetsDone()
+    {
+    assetMainSchdDetailsAdminRepo.delAssetsDone();;
+	}
+    
+    public void delAssetsNotOK()
+    {
+    assetMainSchdDetailsAdminRepo.delAssetsNotOK();
+	}
+    
+    public void delAssetsNotDone()
+    {
+    assetMainSchdDetailsAdminRepo.delAssetsNotDone();
+	}	
+	
+    public void delAssetsWIP()
+    {
+    assetMainSchdDetailsAdminRepo.delAssetsWIP();
+	}
+    
+    public void delAssetsNotWIP()
+    {
+    assetMainSchdDetailsAdminRepo.delAssetsNotWIP();
+	}
+    
+    public void delAssetsBetweenDTTM( String fr,  String to) 
+	{
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+		LocalDateTime dateOn = LocalDateTime.parse(fr, formatter);
+		LocalDateTime dateTo = LocalDateTime.parse(to, formatter);
+		Timestamp ts_Fr = Timestamp.valueOf(dateOn);
+		Timestamp ts_To = Timestamp.valueOf(dateTo);
+		assetMainSchdDetailsAdminRepo.delAssetsBetweenDTTM(ts_Fr, ts_To);		
+		return;
+	}
+    
+    
 	private ArrayList<AssetMaintenanceSchdDetail_DTO> getAssetMaintenanceSchdDetailDtos(ArrayList<AssetMaintenanceSchdDetail> lMasters) {
 		AssetMaintenanceSchdDetail_DTO lDTO = null;
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
 		ArrayList<AssetMaintenanceSchdDetail_DTO> lMasterDTOs = new ArrayList<AssetMaintenanceSchdDetail_DTO>();
 		
 		for (int i = 0; i < lMasters.size(); i++)
 		{
-			lDTO = new AssetMaintenanceSchdDetail_DTO();					
-			lDTO.setDateFrom(formatter.format(lMasters.get(i).getDateFrom().toLocalDateTime()));
-			lDTO.setDateTo(formatter.format(lMasters.get(i).getDateTo().toLocalDateTime()));
-			lDTO.setAssetMaintenanceSeqNo(lMasters.get(i).getId().getAssetMaintenanceSeqNo());
-			lDTO.setAssetSeqNo(lMasters.get(i).getId().getAssetSeqNo());
-			lDTO.setServiceSeqNo(lMasters.get(i).getId().getServiceSeqNo());
-			lDTO.setDuration(lMasters.get(i).getDuration());
-			lDTO.setDurationSeqNo(lMasters.get(i).getDurationSeqNo());
+			lDTO = this.getAssetMaintenanceSchdDetail_DTO(lMasters.get(i));					
 			lMasterDTOs.add(lDTO);
 		}
 		return lMasterDTOs;
